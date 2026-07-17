@@ -28,12 +28,9 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private Long fone;
+    private String cep;
 
-    @Column(nullable = false)
-    private Long cep;
-
-    private Long cnpj;
+    private String cnpj;
 
     private String areaAtuacao;
 

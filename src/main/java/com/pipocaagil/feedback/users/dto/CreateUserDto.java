@@ -7,10 +7,9 @@ public record CreateUserDto(
         String email,
         String password,
         RoleName role,
-        Long fone,
-        Long cep,
+        String cep,
         String name,
         String areaAtuacao,
-        Long cnpj
+        String cnpj
 ) {
 }

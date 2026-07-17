@@ -57,7 +57,9 @@ public class UserService {
                 .password(securityConfiguration.passwordEncoder().encode(createUserDto.password()))
                 .name(createUserDto.name())
                 .cep(createUserDto.cep())
-                .fone(createUserDto.fone())
+                .cnpj(createUserDto.cnpj())
+                .cep(createUserDto.cep())
+                .areaAtuacao(createUserDto.areaAtuacao())
                 // Atribui ao usuário uma permissão específica
                 .roles(List.of(Role.builder().name(createUserDto.role()).build()))
                 .build();
