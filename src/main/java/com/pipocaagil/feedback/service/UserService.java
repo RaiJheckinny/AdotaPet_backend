@@ -60,6 +60,7 @@ public class UserService {
                 .cnpj(createUserDto.cnpj())
                 .cep(createUserDto.cep())
                 .areaAtuacao(createUserDto.areaAtuacao())
+                .emailConfirmConfirmado(createUserDto.emailConfirmConfirmado())
                 // Atribui ao usuário uma permissão específica
                 .roles(List.of(Role.builder().name(createUserDto.role()).build()))
                 .build();
