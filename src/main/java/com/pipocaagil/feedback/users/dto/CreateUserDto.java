@@ -9,6 +9,8 @@ public record CreateUserDto(
         RoleName role,
         Long fone,
         Long cep,
-        String name
+        String name,
+        String areaAtuacao,
+        Long cnpj
 ) {
 }

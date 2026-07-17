@@ -33,6 +33,10 @@ public class User {
     @Column(nullable = false)
     private Long cep;
 
+    private Long cnpj;
+
+    private String areaAtuacao;
+
     @Column(nullable = false)
     private String name;
 
