@@ -1,6 +1,6 @@
 # Passo 1: Usa o Maven para baixar as dependências e compilar o seu código
 FROM maven:3.8.5-openjdk-17 AS build
-COPY . .
+COPY ../../.. .
 # O -DskipTests evita que o build falhe caso você tenha testes não configurados
 RUN mvn clean package -DskipTests
 
