@@ -25,7 +25,14 @@ public class UserController {
     @PostMapping
     public ResponseEntity<Void> createUser(@RequestBody CreateUserDto createUserDto) {
         userService.createUser(createUserDto);
+        userService.enviarEmail(createUserDto.email());
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PostMapping("/email")
+    public ResponseEntity<Void> emai(@RequestBody String email) {
+        userService.enviarEmail(email);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/test")

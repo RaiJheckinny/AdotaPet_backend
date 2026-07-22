@@ -9,12 +9,17 @@ import com.pipocaagil.feedback.users.dto.CreateUserDto;
 import com.pipocaagil.feedback.users.dto.LoginUserDto;
 import com.pipocaagil.feedback.users.dto.RecoveryJwtTokenDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailAuthenticationException;
+import org.springframework.mail.MailException;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class UserService {
@@ -30,6 +35,9 @@ public class UserService {
 
     @Autowired
     private SecurityConfiguration securityConfiguration;
+
+    @Autowired
+    private JavaMailSender mailSender;
 
     // Método responsável por autenticar um usuário e retornar um token JWT
     public RecoveryJwtTokenDto authenticateUser(LoginUserDto loginUserDto) {
@@ -68,4 +76,32 @@ public class UserService {
         // Salva o novo usuário no banco de dados
         userRepository.save(newUser);
     }
+
+    public void enviarEmail(String email) {
+
+        try {
+            SimpleMailMessage emailEnviar = new SimpleMailMessage();
+
+            emailEnviar.setFrom("seuemail@gmail.com"); // mesmo e-mail configurado no application.properties
+            emailEnviar.setTo(email);
+            emailEnviar.setSubject("Código de Verificação");
+
+            Random random = new Random();
+            int numero = 100000 + random.nextInt(900000);
+
+            emailEnviar.setText(String.valueOf(numero));
+
+            mailSender.send(emailEnviar);
+
+            System.out.println("E-mail enviado com sucesso!");
+
+        } catch (MailAuthenticationException e) {
+            System.out.println("Usuário ou senha do SMTP incorretos.");
+        } catch (MailException e) {
+            System.out.println("Erro ao enviar: " + e.getMessage());
+        }
+    }
+
+
+
 }
