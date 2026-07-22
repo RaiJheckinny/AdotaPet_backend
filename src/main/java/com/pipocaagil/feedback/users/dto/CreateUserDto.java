@@ -10,7 +10,6 @@ public record CreateUserDto(
         String cep,
         String name,
         String areaAtuacao,
-        String cnpj,
-        Boolean emailConfirmConfirmado
+        String cnpj
 ) {
 }

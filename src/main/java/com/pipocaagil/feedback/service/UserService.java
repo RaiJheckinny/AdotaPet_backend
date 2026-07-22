@@ -36,8 +36,6 @@ public class UserService {
     @Autowired
     private SecurityConfiguration securityConfiguration;
 
-    @Autowired
-    private JavaMailSender mailSender;
 
     // Método responsável por autenticar um usuário e retornar um token JWT
     public RecoveryJwtTokenDto authenticateUser(LoginUserDto loginUserDto) {
@@ -90,8 +88,6 @@ public class UserService {
             int numero = 100000 + random.nextInt(900000);
 
             emailEnviar.setText(String.valueOf(numero));
-
-            mailSender.send(emailEnviar);
 
             System.out.println("E-mail enviado com sucesso!");
 

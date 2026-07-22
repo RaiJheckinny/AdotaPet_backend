@@ -34,8 +34,6 @@ public class User {
 
     private String areaAtuacao;
 
-    private Boolean emailConfirmConfirmado;
-
     @Column(nullable = false)
     private String name;
 
