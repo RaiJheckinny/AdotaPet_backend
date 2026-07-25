@@ -17,12 +17,19 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfiguration {
 
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+
+    public SecurityConfiguration(CustomAccessDeniedHandler accessDeniedHandler) {
+        this.accessDeniedHandler = accessDeniedHandler;
+    }
+
     @Autowired
     private UserAuthenticationFilter userAuthenticationFilter;
 
     public static final String [] ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED = {
             "/users/login", // Url que usaremos para fazer login
-            "/users", // Url que usaremos para criar um usuário
+            "/users/cadastrar/ong", // Url que usaremos para criar um usuário Ong
+            "/users/cadastrar/comum",// Url que usaremos para criar um usuário Comum
             "/users/email"
     };
 
@@ -47,7 +54,11 @@ public class SecurityConfiguration {
     };
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity httpSecurity,
+            CustomAccessDeniedHandler accessDeniedHandler, // Injeta o handler do 403
+            CustomAuthenticationEntryPoint authenticationEntryPoint // Injeta o handler do 401 (opcional, mas recomendado)
+    ) throws Exception {
 
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
@@ -59,7 +70,12 @@ public class SecurityConfiguration {
                         .requestMatchers(ENDPOINTS_ADMIN).hasRole("ADMINISTRATOR")
                         .requestMatchers(ENDPOINTS_ONG).hasRole("ONG")
                         .requestMatchers(ENDPOINTS_USER).hasRole("USER")
-                        .anyRequest().denyAll()
+                        .anyRequest().denyAll() // Rotas não especificadas caem aqui e disparam 403
+                )
+                // Tratamento customizado de erros do Spring Security (403 e 401)
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(accessDeniedHandler) // Trata o 403 (Forbidden / denyAll)
+                        .authenticationEntryPoint(authenticationEntryPoint) // Trata o 401 (Unauthorized / Sem token)
                 )
                 .addFilterBefore(
                         userAuthenticationFilter,

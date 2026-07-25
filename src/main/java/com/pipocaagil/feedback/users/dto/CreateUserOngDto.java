@@ -2,9 +2,9 @@ package com.pipocaagil.feedback.users.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import org.hibernate.validator.constraints.br.CNPJ;
 
-public record CreateUserDto(
+public record CreateUserOngDto(
 
         @NotBlank(message = "Nome é obrigatório")
         String name,
@@ -17,6 +17,13 @@ public record CreateUserDto(
         String password,
 
         @NotBlank(message = "CEP é obrigatório")
-        @Pattern(regexp = "^\\d{5}-?\\d{3}$", message = "CEP inválido. Use o formato 12345678 ou 12345-678.")
-        String cep
+        String cep,
+
+        @NotBlank(message = "CNPJ é obrigatório")
+        @CNPJ(message = "CNPJ inválido.")
+        String cnpj,
+
+        @NotBlank(message = "Área de atuação é obrigatória")
+        String areaAtuacao
+
 ) {}

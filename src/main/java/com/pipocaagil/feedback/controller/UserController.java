@@ -1,9 +1,14 @@
 package com.pipocaagil.feedback.controller;
 
+import com.pipocaagil.feedback.exception.CnpfAlreadyExistsException;
+import com.pipocaagil.feedback.exception.EmailAlreadyExistsException;
+import com.pipocaagil.feedback.exception.EmailNotFoundException;
 import com.pipocaagil.feedback.service.UserService;
 import com.pipocaagil.feedback.users.dto.CreateUserDto;
+import com.pipocaagil.feedback.users.dto.CreateUserOngDto;
 import com.pipocaagil.feedback.users.dto.LoginUserDto;
 import com.pipocaagil.feedback.users.dto.RecoveryJwtTokenDto;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,21 +23,39 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<RecoveryJwtTokenDto> authenticateUser(@RequestBody LoginUserDto loginUserDto) {
+
+        if (!userService.isEmail(loginUserDto.email())) {
+            throw new EmailNotFoundException();
+        }
+
         RecoveryJwtTokenDto token = userService.authenticateUser(loginUserDto);
         return new ResponseEntity<>(token, HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<Void> createUser(@RequestBody CreateUserDto createUserDto) {
-        userService.createUser(createUserDto);
-        userService.enviarEmail(createUserDto.email());
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    @PostMapping("/cadastrar/ong")
+    public ResponseEntity<Void> createUserOng(@Valid @RequestBody CreateUserOngDto createUserOngDto) {
+
+        if (userService.isEmail(createUserOngDto.email())) {
+            throw new EmailAlreadyExistsException();
+        }
+
+        if (userService.isCnpj(createUserOngDto.email(), createUserOngDto.cnpj())){
+            throw new CnpfAlreadyExistsException();
+        }
+
+        userService.createUserOng(createUserOngDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/email")
-    public ResponseEntity<Void> emai(@RequestBody String email) {
-        userService.enviarEmail(email);
-        return new ResponseEntity<>(HttpStatus.OK);
+    @PostMapping("/cadastrar/comum")
+    public ResponseEntity<Void> createUser(@Valid @RequestBody CreateUserDto createUserDto) {
+
+        if (userService.isEmail(createUserDto.email())) {
+            throw new EmailAlreadyExistsException();
+        }
+
+        userService.createUser(createUserDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/test")

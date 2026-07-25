@@ -1,24 +1,28 @@
 package com.pipocaagil.feedback.service;
 
+import com.pipocaagil.feedback.exception.RecursoNaoEncontradoException;
 import com.pipocaagil.feedback.repository.UserRepository;
 import com.pipocaagil.feedback.security.Role;
+import com.pipocaagil.feedback.security.RoleName;
 import com.pipocaagil.feedback.security.UserDetailsImpl;
 import com.pipocaagil.feedback.security.configuration.SecurityConfiguration;
 import com.pipocaagil.feedback.users.User;
 import com.pipocaagil.feedback.users.dto.CreateUserDto;
+import com.pipocaagil.feedback.users.dto.CreateUserOngDto;
 import com.pipocaagil.feedback.users.dto.LoginUserDto;
 import com.pipocaagil.feedback.users.dto.RecoveryJwtTokenDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailAuthenticationException;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 @Service
@@ -35,6 +39,8 @@ public class UserService {
 
     @Autowired
     private SecurityConfiguration securityConfiguration;
+
+    private final RestTemplate restTemplate = new RestTemplate();
 
 
     // Método responsável por autenticar um usuário e retornar um token JWT
@@ -53,50 +59,78 @@ public class UserService {
         return new RecoveryJwtTokenDto(jwtTokenService.generateToken(userDetails));
     }
 
-    // Método responsável por criar um usuário
-    public void createUser(CreateUserDto createUserDto) {
+    // Método responsável por criar um usuário da Ong
+    public void createUserOng(CreateUserOngDto createUserOngDto) {
+        validarCepExistente(createUserOngDto.cep());
 
         // Cria um novo usuário com os dados fornecidos
         User newUser = User.builder()
-                .email(createUserDto.email())
+                .email(createUserOngDto.email())
                 // Codifica a senha do usuário com o algoritmo bcrypt
-                .password(securityConfiguration.passwordEncoder().encode(createUserDto.password()))
-                .name(createUserDto.name())
-                .cep(createUserDto.cep())
-                .cnpj(createUserDto.cnpj())
-                .cep(createUserDto.cep())
-                .areaAtuacao(createUserDto.areaAtuacao())
+                .password(securityConfiguration.passwordEncoder().encode(createUserOngDto.password()))
+                .name(createUserOngDto.name())
+                .cep(createUserOngDto.cep())
+                .cnpj(createUserOngDto.cnpj())
+                .cep(createUserOngDto.cep().replaceAll("[^0-9]", "")) // Opcional: Limpa pontos e hífens antes de salvar                .areaAtuacao(createUserOngDto.areaAtuacao())
                 // Atribui ao usuário uma permissão específica
-                .roles(List.of(Role.builder().name(createUserDto.role()).build()))
+                .roles(List.of(Role.builder().name(RoleName.valueOf("ROLE_ONG")).build()))
                 .build();
 
         // Salva o novo usuário no banco de dados
         userRepository.save(newUser);
     }
 
-    public void enviarEmail(String email) {
+    // Método responsável por criar um usuário da Comum
+    public void createUser(CreateUserDto createUserDto) {
+        validarCepExistente(createUserDto.cep());
 
-        try {
-            SimpleMailMessage emailEnviar = new SimpleMailMessage();
+        // Cria um novo usuário Comum com os dados fornecidos
+    User newUser = User.builder()
+            .email(createUserDto.email())
+            // Codifica a senha do usuário com o algoritmo bcrypt
+            .password(securityConfiguration.passwordEncoder().encode(createUserDto.password()))
+            .name(createUserDto.name())
+            .cep(createUserDto.cep())
+            .cep(createUserDto.cep().replaceAll("[^0-9]", "")) // Opcional: Limpa pontos e hífens antes de salvar                .areaAtuacao(createUserOngDto.areaAtuacao())
+            // Atribui ao usuário uma permissão específica
+            .roles(List.of(Role.builder().name(RoleName.valueOf("ROLE_USER")).build()))
+            .build();
 
-            emailEnviar.setFrom("seuemail@gmail.com"); // mesmo e-mail configurado no application.properties
-            emailEnviar.setTo(email);
-            emailEnviar.setSubject("Código de Verificação");
+    // Salva o novo usuário no banco de dados
+        userRepository.save(newUser);
+}
 
-            Random random = new Random();
-            int numero = 100000 + random.nextInt(900000);
+    public Boolean isCnpj(String email,String cnpf) {
+        User user = userRepository.findByEmail(email).orElse(null);
 
-            emailEnviar.setText(String.valueOf(numero));
-
-            System.out.println("E-mail enviado com sucesso!");
-
-        } catch (MailAuthenticationException e) {
-            System.out.println("Usuário ou senha do SMTP incorretos.");
-        } catch (MailException e) {
-            System.out.println("Erro ao enviar: " + e.getMessage());
+        if (user.getCnpj().equals(cnpf)){
+            return true;
         }
+
+        return false;
+    }
+    //User Ja ta Cadastrado
+    public Boolean isEmail(String email) {
+        return userRepository.findByEmail(email).isPresent();
     }
 
+    // Método auxiliar para validar se o CEP existe de fato
+    private void validarCepExistente(String cep) {
+        // Limpa hífens ou pontos deixados no CEP
+        String cepLimpo = cep.replaceAll("[^0-9]", "");
+        String url = "https://viacep.com.br/ws/" + cepLimpo + "/json/";
 
+        try {
+            Map<?, ?> response = restTemplate.getForObject(url, Map.class);
+
+            // O ViaCEP retorna {"erro": "true"} quando o CEP possui formato válido mas não existe
+            if (response != null && response.containsKey("erro")) {
+                throw new RecursoNaoEncontradoException("O CEP " + cep + " não foi encontrado na base dos Correios.");
+            }
+        } catch (Exception e) {
+            if (e instanceof RecursoNaoEncontradoException) throw e;
+            // Se a API externa falhar ou estiver fora, trate ou permita passar conforme a regra de negócio
+        }
+    }
 
 }
