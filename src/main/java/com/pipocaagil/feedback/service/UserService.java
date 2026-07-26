@@ -98,14 +98,14 @@ public class UserService {
         userRepository.save(newUser);
 }
 
-    public Boolean isCnpj(String email,String cnpf) {
+    public Boolean isCnpj(String email, String cnpj) {
         User user = userRepository.findByEmail(email).orElse(null);
 
-        if (user.getCnpj().equals(cnpf)){
-            return true;
+        if (user == null) {
+            return false;
         }
 
-        return false;
+        return user.getCnpj().equals(cnpj);
     }
     //User Ja ta Cadastrado
     public Boolean isEmail(String email) {
