@@ -39,7 +39,7 @@ public class UserController {
             throw new EmailAlreadyExistsException();
         }
 
-        if (!userService.isCnpj(createUserOngDto.email(), createUserOngDto.cnpj())){
+        if (userService.isCnpj(createUserOngDto.email(), createUserOngDto.cnpj())){
             throw new CnpfAlreadyExistsException();
         }
 
