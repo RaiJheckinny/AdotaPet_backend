@@ -99,15 +99,10 @@ public class UserService {
         userRepository.save(newUser);
 }
 
-    public Boolean isCnpj(String email, String cnpj) {
-        User user = userRepository.findByEmail(email).orElse(null);
-
-        if (user == null) {
-            return false;
-        }
-
-        return user.getCnpj().equals(cnpj);
+    public boolean isCnpj(String cnpj) {
+        return userRepository.existsByCnpj(cnpj);
     }
+
     //User Ja ta Cadastrado
     public Boolean isEmail(String email) {
         return userRepository.findByEmail(email).isPresent();
@@ -115,36 +110,40 @@ public class UserService {
 
     // Método auxiliar para validar se o CEP existe de fato
     private void validarCepExistente(String cep) {
+
         String cepLimpo = cep.replaceAll("\\D", "");
 
         String viaCepUrl = "https://viacep.com.br/ws/" + cepLimpo + "/json/";
         String awesomeUrl = "https://cep.awesomeapi.com.br/json/" + cepLimpo;
 
+        // ViaCEP
         try {
             Map<String, Object> viaCep = restTemplate.getForObject(viaCepUrl, Map.class);
-            System.out.println("ViaCEP -> " + viaCep);
 
-            if (viaCep != null && !viaCep.containsKey("erro")) {
-                System.out.println("Passou pelo ViaCEP");
+            if (viaCep != null
+                    && !viaCep.containsKey("erro")
+                    && viaCep.get("localidade") != null
+                    && viaCep.get("uf") != null) {
                 return;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
 
+        // AwesomeAPI
         try {
             Map<String, Object> awesome = restTemplate.getForObject(awesomeUrl, Map.class);
-            System.out.println("Awesome -> " + awesome);
 
-            if (awesome != null) {
-                System.out.println("Passou pela Awesome");
+            if (awesome != null
+                    && awesome.get("city") != null
+                    && awesome.get("state") != null) {
                 return;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
 
-        throw new RecursoNaoEncontradoException("O CEP " + cep + " não foi encontrado.");
+        throw new RecursoNaoEncontradoException(
+                "O CEP " + cep + " não foi encontrado."
+        );
     }
 
 }
