@@ -5,6 +5,7 @@ import com.pipocaagil.feedback.exception.EmailAlreadyExistsException;
 import com.pipocaagil.feedback.exception.EmailNotFoundException;
 import com.pipocaagil.feedback.service.UserService;
 import com.pipocaagil.feedback.users.dto.*;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Operation(summary = "Login de Usuario")
     @PostMapping("/login")
     public ResponseEntity<RecoveryJwtTokenDto> authenticateUser(@RequestBody LoginUserDto loginUserDto) {
 
@@ -29,6 +31,7 @@ public class UserController {
         return new ResponseEntity<>(token, HttpStatus.OK);
     }
 
+    @Operation(summary = "Cadastrar ONG")
     @PostMapping("/cadastrar/ong")
     public ResponseEntity<Void> createUserOng(@Valid @RequestBody CreateUserOngDto createUserOngDto) {
 
@@ -44,6 +47,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Operation(summary = "Cadastrar Usuario Comum")
     @PostMapping("/cadastrar/comum")
     public ResponseEntity<Void> createUser(@Valid @RequestBody CreateUserDto createUserDto) {
 
