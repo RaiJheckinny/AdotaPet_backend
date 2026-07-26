@@ -31,7 +31,8 @@ public class SecurityConfiguration {
             "/users/cadastrar/ong", // Url que usaremos para criar um usuário Ong
             "/users/cadastrar/comum",// Url que usaremos para criar um usuário Comum
             "/users/email",
-            "/cep/{cep}"
+            "/cep/{cep}",
+            "/swagger-ui/"
     };
 
     // Endpoints que requerem autenticação para serem acessados
