@@ -5,6 +5,7 @@ import com.pipocaagil.feedback.exception.EmailAlreadyExistsException;
 import com.pipocaagil.feedback.exception.EmailNotFoundException;
 import com.pipocaagil.feedback.service.UserService;
 import com.pipocaagil.feedback.users.dto.*;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,7 @@ public class UserController {
         userService.createUser(createUserDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+    @Hidden
     @GetMapping("/cep/{cep}")
     public ResponseEntity<RecoveryCepDto> verificationCep(
             @PathVariable String cep) {
@@ -66,20 +68,4 @@ public class UserController {
                 new RecoveryCepDto(userService.validarCepExistente(cep))
         );
     }
-
-    @GetMapping("/test")
-    public ResponseEntity<String> getAuthenticationTest() {
-        return new ResponseEntity<>("Autenticado com sucesso", HttpStatus.OK);
-    }
-
-    @GetMapping("/test/customer")
-    public ResponseEntity<String> getCustomerAuthenticationTest() {
-        return new ResponseEntity<>("Cliente autenticado com sucesso", HttpStatus.OK);
-    }
-
-    @GetMapping("/test/administrator")
-    public ResponseEntity<String> getAdminAuthenticationTest() {
-        return new ResponseEntity<>("Administrador autenticado com sucesso", HttpStatus.OK);
-    }
-
 }
