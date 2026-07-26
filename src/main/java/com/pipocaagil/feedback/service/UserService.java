@@ -118,41 +118,34 @@ public class UserService {
     private void validarCepExistente(String cep) {
         String cepLimpo = cep.replaceAll("\\D", "");
 
-        if (!cepLimpo.matches("\\d{8}")) {
-            throw new RecursoNaoEncontradoException("CEP inválido.");
-        }
-
         String viaCepUrl = "https://viacep.com.br/ws/" + cepLimpo + "/json/";
         String awesomeUrl = "https://cep.awesomeapi.com.br/json/" + cepLimpo;
 
-        // ViaCEP
         try {
-            Map<String, Object> response = restTemplate.getForObject(viaCepUrl, Map.class);
+            Map<String, Object> viaCep = restTemplate.getForObject(viaCepUrl, Map.class);
+            System.out.println("ViaCEP -> " + viaCep);
 
-            if (response != null
-                    && !response.containsKey("erro")
-                    && response.get("localidade") != null
-                    && response.get("uf") != null) {
+            if (viaCep != null && !viaCep.containsKey("erro")) {
+                System.out.println("Passou pelo ViaCEP");
                 return;
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        // AwesomeAPI
         try {
-            Map<String, Object> response = restTemplate.getForObject(awesomeUrl, Map.class);
+            Map<String, Object> awesome = restTemplate.getForObject(awesomeUrl, Map.class);
+            System.out.println("Awesome -> " + awesome);
 
-            if (response != null
-                    && response.get("city") != null
-                    && response.get("state") != null) {
+            if (awesome != null) {
+                System.out.println("Passou pela Awesome");
                 return;
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        throw new RecursoNaoEncontradoException(
-                "O CEP " + cep + " não foi encontrado."
-        );
+        throw new RecursoNaoEncontradoException("O CEP " + cep + " não foi encontrado.");
     }
 
 }
