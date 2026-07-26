@@ -5,6 +5,7 @@ import com.pipocaagil.feedback.exception.EmailAlreadyExistsException;
 import com.pipocaagil.feedback.exception.EmailNotFoundException;
 import com.pipocaagil.feedback.service.UserService;
 import com.pipocaagil.feedback.users.dto.*;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,7 @@ public class UserController {
         userService.createUser(createUserDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+    @Hidden
     @GetMapping("/cep/{cep}")
     public ResponseEntity<RecoveryCepDto> verificationCep(
             @PathVariable String cep) {
