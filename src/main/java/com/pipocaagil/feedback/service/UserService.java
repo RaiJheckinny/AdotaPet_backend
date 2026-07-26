@@ -116,21 +116,42 @@ public class UserService {
 
     // Método auxiliar para validar se o CEP existe de fato
     private void validarCepExistente(String cep) {
-        // Limpa hífens ou pontos deixados no CEP
         String cepLimpo = cep.replaceAll("[^0-9]", "");
-        String url = "https://viacep.com.br/ws/" + cepLimpo + "/json/";
 
-        try {
-            Map<?, ?> response = restTemplate.getForObject(url, Map.class);
-
-            // O ViaCEP retorna {"erro": "true"} quando o CEP possui formato válido mas não existe
-            if (response != null && response.containsKey("erro")) {
-                throw new RecursoNaoEncontradoException("O CEP " + cep + " não foi encontrado na base dos Correios.");
-            }
-        } catch (Exception e) {
-            if (e instanceof RecursoNaoEncontradoException) throw e;
-            // Se a API externa falhar ou estiver fora, trate ou permita passar conforme a regra de negócio
+        if (!cepLimpo.matches("\\d{8}")) {
+            throw new IllegalArgumentException("CEP inválido.");
         }
+
+        String viaCepUrl = "https://viacep.com.br/ws/" + cepLimpo + "/json/";
+        String awesomeUrl = "https://cep.awesomeapi.com.br/json/" + cepLimpo;
+
+        // 1 - Tenta ViaCEP
+        try {
+            Map<?, ?> response = restTemplate.getForObject(viaCepUrl, Map.class);
+
+            if (response != null && !response.containsKey("erro")) {
+                return;
+            }
+        } catch (Exception ignored) {
+        }
+
+        // 2 - Se o ViaCEP falhar ou não encontrar, tenta AwesomeAPI
+        try {
+            Map<?, ?> response = restTemplate.getForObject(awesomeUrl, Map.class);
+
+            // A AwesomeAPI retorna dados quando o CEP existe
+            if (response != null
+                    && response.get("cep") != null
+                    && response.get("address") != null) {
+                return;
+            }
+        } catch (Exception ignored) {
+        }
+
+        // 3 - Nenhuma das APIs encontrou o CEP
+        throw new RecursoNaoEncontradoException(
+                "O CEP " + cep + " não foi encontrado."
+        );
     }
 
 }
