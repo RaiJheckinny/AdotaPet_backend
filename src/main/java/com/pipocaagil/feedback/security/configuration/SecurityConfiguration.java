@@ -30,7 +30,8 @@ public class SecurityConfiguration {
             "/users/login", // Url que usaremos para fazer login
             "/users/cadastrar/ong", // Url que usaremos para criar um usuário Ong
             "/users/cadastrar/comum",// Url que usaremos para criar um usuário Comum
-            "/users/email"
+            "/users/email",
+            "/cep/{cep}"
     };
 
     // Endpoints que requerem autenticação para serem acessados
