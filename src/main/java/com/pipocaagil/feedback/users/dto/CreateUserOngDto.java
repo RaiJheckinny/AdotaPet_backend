@@ -24,6 +24,6 @@ public record CreateUserOngDto(
         String cnpj,
 
         @NotBlank(message = "Área de atuação é obrigatória")
-        String areaAtuacao
+        String area_atuacao
 
 ) {}

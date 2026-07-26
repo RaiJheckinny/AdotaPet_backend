@@ -141,7 +141,7 @@ public class GlobalExceptionHandler {
                     "password", "SenhaSegura123!",
                     "cep", "12345678",
                     "cnpj", "12.345.678/0001-90",
-                    "areaAtuacao", "Proteção Animal"
+                    "area_atuacao", "Proteção Animal"
             ));
         }
 
@@ -181,7 +181,7 @@ public class GlobalExceptionHandler {
                     "password", "SenhaSegura123!",
                     "cep", "12345678",
                     "cnpj", "12.345.678/0001-90",
-                    "areaAtuacao", "Proteção Animal"
+                    "area_atuacao", "Proteção Animal"
             ));
         }
 
@@ -221,8 +221,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleCnpjJaCadastrado(CnpfAlreadyExistsException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("erro", "Cnpj Ja Cadastrado.");
-        body.put("mensagem", ex.getMessage());
-
         return ResponseEntity.badRequest().body(body);
     }
     @ExceptionHandler(Exception.class)

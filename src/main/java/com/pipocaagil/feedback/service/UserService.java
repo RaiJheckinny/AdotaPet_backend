@@ -69,7 +69,7 @@ public class UserService {
                 // Codifica a senha do usuário com o algoritmo bcrypt
                 .password(securityConfiguration.passwordEncoder().encode(createUserOngDto.password()))
                 .name(createUserOngDto.name())
-                .areaAtuacao(createUserOngDto.areaAtuacao())
+                .area_atuacao(createUserOngDto.area_atuacao())
                 .cnpj(createUserOngDto.cnpj().replaceAll("[^0-9]", ""))
                 .cep(createUserOngDto.cep().replaceAll("[^0-9]", "")) // Opcional: Limpa pontos e hífens antes de salvar                .areaAtuacao(createUserOngDto.areaAtuacao())
                 // Atribui ao usuário uma permissão específica

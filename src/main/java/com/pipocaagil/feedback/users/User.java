@@ -32,7 +32,7 @@ public class User {
 
     private String cnpj;
 
-    private String areaAtuacao;
+    private String area_atuacao;
 
     @Column(nullable = false)
     private String name;
