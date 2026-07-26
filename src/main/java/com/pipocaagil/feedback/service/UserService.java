@@ -61,8 +61,6 @@ public class UserService {
 
     // Método responsável por criar um usuário da Ong
     public void createUserOng(CreateUserOngDto createUserOngDto) {
-        validarCepExistente(createUserOngDto.cep());
-
         // Cria um novo usuário com os dados fornecidos
         User newUser = User.builder()
                 .email(createUserOngDto.email())
@@ -82,8 +80,6 @@ public class UserService {
 
     // Método responsável por criar um usuário da Comum
     public void createUser(CreateUserDto createUserDto) {
-        validarCepExistente(createUserDto.cep());
-
         // Cria um novo usuário Comum com os dados fornecidos
     User newUser = User.builder()
             .email(createUserDto.email())
@@ -109,7 +105,7 @@ public class UserService {
     }
 
     // Método auxiliar para validar se o CEP existe de fato
-    private void validarCepExistente(String cep) {
+    public boolean validarCepExistente(String cep) {
         String cepLimpo = cep.replaceAll("\\D", "");
 
         String viaCepUrl = "https://viacep.com.br/ws/" + cepLimpo + "/json/";
@@ -120,8 +116,7 @@ public class UserService {
             System.out.println("ViaCEP -> " + viaCep);
 
             if (viaCep != null && !viaCep.containsKey("erro")) {
-                System.out.println("Passou pelo ViaCEP");
-                return;
+                return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -132,14 +127,13 @@ public class UserService {
             System.out.println("Awesome -> " + awesome);
 
             if (awesome != null) {
-                System.out.println("Passou pela Awesome");
-                return;
+                return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        throw new RecursoNaoEncontradoException("O CEP " + cep + " não foi encontrado.");
+        return false;
     }
 
 }

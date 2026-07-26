@@ -4,10 +4,7 @@ import com.pipocaagil.feedback.exception.CnpfAlreadyExistsException;
 import com.pipocaagil.feedback.exception.EmailAlreadyExistsException;
 import com.pipocaagil.feedback.exception.EmailNotFoundException;
 import com.pipocaagil.feedback.service.UserService;
-import com.pipocaagil.feedback.users.dto.CreateUserDto;
-import com.pipocaagil.feedback.users.dto.CreateUserOngDto;
-import com.pipocaagil.feedback.users.dto.LoginUserDto;
-import com.pipocaagil.feedback.users.dto.RecoveryJwtTokenDto;
+import com.pipocaagil.feedback.users.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -56,6 +53,14 @@ public class UserController {
 
         userService.createUser(createUserDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+    @GetMapping("/cep/{cep}")
+    public ResponseEntity<RecoveryCepDto> verificationCep(
+            @PathVariable String cep) {
+
+        return ResponseEntity.ok(
+                new RecoveryCepDto(userService.validarCepExistente(cep))
+        );
     }
 
     @GetMapping("/test")
