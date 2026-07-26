@@ -34,7 +34,8 @@ public class SecurityConfiguration {
             "/cep/{cep}",
             "/swagger-ui/**",
             "/swagger-ui.html",
-            "/v3/api-docs/**"
+            "/v3/api-docs/**",
+            "/v3/api-docs.yaml"
     };
 
     // Endpoints que requerem autenticação para serem acessados
@@ -74,7 +75,7 @@ public class SecurityConfiguration {
                         .requestMatchers(ENDPOINTS_ADMIN).hasRole("ADMINISTRATOR")
                         .requestMatchers(ENDPOINTS_ONG).hasRole("ONG")
                         .requestMatchers(ENDPOINTS_USER).hasRole("USER")
-                        .anyRequest().denyAll() // Rotas não especificadas caem aqui e disparam 403
+                        .anyRequest().denyAll()
                 )
                 // Tratamento customizado de erros do Spring Security (403 e 401)
                 .exceptionHandling(exception -> exception
