@@ -116,42 +116,45 @@ public class UserService {
 
     // Método auxiliar para validar se o CEP existe de fato
     private void validarCepExistente(String cep) {
-        String cepLimpo = cep.replaceAll("[^0-9]", "");
+        String cepLimpo = cep.replaceAll("\\D", "");
 
         if (!cepLimpo.matches("\\d{8}")) {
             throw new IllegalArgumentException("CEP inválido.");
         }
 
-        String viaCepUrl = "https://viacep.com.br/ws/" + cepLimpo + "/json/";
-        String awesomeUrl = "https://cep.awesomeapi.com.br/json/" + cepLimpo;
-
-        // 1 - Tenta ViaCEP
-        try {
-            Map<?, ?> response = restTemplate.getForObject(viaCepUrl, Map.class);
-
-            if (response != null && !response.containsKey("erro")) {
-                return;
-            }
-        } catch (Exception ignored) {
+        if (consultarViaCep(cepLimpo)) {
+            return;
         }
 
-        // 2 - Se o ViaCEP falhar ou não encontrar, tenta AwesomeAPI
-        try {
-            Map<?, ?> response = restTemplate.getForObject(awesomeUrl, Map.class);
-
-            // A AwesomeAPI retorna dados quando o CEP existe
-            if (response != null
-                    && response.get("cep") != null
-                    && response.get("address") != null) {
-                return;
-            }
-        } catch (Exception ignored) {
+        if (consultarAwesomeApi(cepLimpo)) {
+            return;
         }
 
-        // 3 - Nenhuma das APIs encontrou o CEP
-        throw new RecursoNaoEncontradoException(
-                "O CEP " + cep + " não foi encontrado."
-        );
+        throw new RecursoNaoEncontradoException("O CEP " + cep + " não foi encontrado.");
+    }
+
+    private boolean consultarViaCep(String cep) {
+        try {
+            String url = "https://viacep.com.br/ws/" + cep + "/json/";
+            Map<?, ?> response = restTemplate.getForObject(url, Map.class);
+
+            return response != null && !response.containsKey("erro");
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean consultarAwesomeApi(String cep) {
+        try {
+            String url = "https://cep.awesomeapi.com.br/json/" + cep;
+            Map<?, ?> response = restTemplate.getForObject(url, Map.class);
+
+            return response != null
+                    && !response.containsKey("status")
+                    && response.containsKey("cep");
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 }
