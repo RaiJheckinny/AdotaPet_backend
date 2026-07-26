@@ -110,40 +110,36 @@ public class UserService {
 
     // Método auxiliar para validar se o CEP existe de fato
     private void validarCepExistente(String cep) {
-
         String cepLimpo = cep.replaceAll("\\D", "");
 
         String viaCepUrl = "https://viacep.com.br/ws/" + cepLimpo + "/json/";
         String awesomeUrl = "https://cep.awesomeapi.com.br/json/" + cepLimpo;
 
-        // ViaCEP
         try {
             Map<String, Object> viaCep = restTemplate.getForObject(viaCepUrl, Map.class);
+            System.out.println("ViaCEP -> " + viaCep);
 
-            if (viaCep != null
-                    && !viaCep.containsKey("erro")
-                    && viaCep.get("localidade") != null
-                    && viaCep.get("uf") != null) {
+            if (viaCep != null && !viaCep.containsKey("erro")) {
+                System.out.println("Passou pelo ViaCEP");
                 return;
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        // AwesomeAPI
         try {
             Map<String, Object> awesome = restTemplate.getForObject(awesomeUrl, Map.class);
+            System.out.println("Awesome -> " + awesome);
 
-            if (awesome != null
-                    && awesome.get("city") != null
-                    && awesome.get("state") != null) {
+            if (awesome != null) {
+                System.out.println("Passou pela Awesome");
                 return;
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        throw new RecursoNaoEncontradoException(
-                "O CEP " + cep + " não foi encontrado."
-        );
+        throw new RecursoNaoEncontradoException("O CEP " + cep + " não foi encontrado.");
     }
 
 }
