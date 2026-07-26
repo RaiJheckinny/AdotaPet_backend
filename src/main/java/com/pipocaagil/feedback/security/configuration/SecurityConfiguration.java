@@ -32,7 +32,9 @@ public class SecurityConfiguration {
             "/users/cadastrar/comum",// Url que usaremos para criar um usuário Comum
             "/users/email",
             "/cep/{cep}",
-            "/swagger-ui/"
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**"
     };
 
     // Endpoints que requerem autenticação para serem acessados
