@@ -119,42 +119,40 @@ public class UserService {
         String cepLimpo = cep.replaceAll("\\D", "");
 
         if (!cepLimpo.matches("\\d{8}")) {
-            throw new IllegalArgumentException("CEP inválido.");
+            throw new RecursoNaoEncontradoException("CEP inválido.");
         }
 
-        if (consultarViaCep(cepLimpo)) {
-            return;
-        }
+        String viaCepUrl = "https://viacep.com.br/ws/" + cepLimpo + "/json/";
+        String awesomeUrl = "https://cep.awesomeapi.com.br/json/" + cepLimpo;
 
-        if (consultarAwesomeApi(cepLimpo)) {
-            return;
-        }
-
-        throw new RecursoNaoEncontradoException("O CEP " + cep + " não foi encontrado.");
-    }
-
-    private boolean consultarViaCep(String cep) {
+        // ViaCEP
         try {
-            String url = "https://viacep.com.br/ws/" + cep + "/json/";
-            Map<?, ?> response = restTemplate.getForObject(url, Map.class);
+            Map<String, Object> response = restTemplate.getForObject(viaCepUrl, Map.class);
 
-            return response != null && !response.containsKey("erro");
-        } catch (Exception e) {
-            return false;
+            if (response != null
+                    && !response.containsKey("erro")
+                    && response.get("localidade") != null
+                    && response.get("uf") != null) {
+                return;
+            }
+        } catch (Exception ignored) {
         }
-    }
 
-    private boolean consultarAwesomeApi(String cep) {
+        // AwesomeAPI
         try {
-            String url = "https://cep.awesomeapi.com.br/json/" + cep;
-            Map<?, ?> response = restTemplate.getForObject(url, Map.class);
+            Map<String, Object> response = restTemplate.getForObject(awesomeUrl, Map.class);
 
-            return response != null
-                    && !response.containsKey("status")
-                    && response.containsKey("cep");
-        } catch (Exception e) {
-            return false;
+            if (response != null
+                    && response.get("city") != null
+                    && response.get("state") != null) {
+                return;
+            }
+        } catch (Exception ignored) {
         }
+
+        throw new RecursoNaoEncontradoException(
+                "O CEP " + cep + " não foi encontrado."
+        );
     }
 
 }
