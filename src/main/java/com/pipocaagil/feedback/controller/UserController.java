@@ -24,8 +24,8 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<RecoveryJwtTokenDto> authenticateUser(@RequestBody LoginUserDto loginUserDto) {
 
-        if (userService.isEmail(loginUserDto.email())) {
-            throw new EmailAlreadyExistsException();
+        if (!userService.isEmail(loginUserDto.email())) {
+            throw new EmailNotFoundException();
         }
 
         RecoveryJwtTokenDto token = userService.authenticateUser(loginUserDto);

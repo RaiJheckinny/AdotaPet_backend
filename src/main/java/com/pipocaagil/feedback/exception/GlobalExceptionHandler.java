@@ -203,7 +203,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EmailNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleEmailNaoEncontrado(EmailNotFoundException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("erro", "Usuário não encontrado.");
         body.put("mensagem", ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body); // HTTP 404 NOT FOUND
